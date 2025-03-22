@@ -20,3 +20,7 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+
+admin.site.site_header = "Gerenciamento Abon-App"
+admin.site.site_title = "Abon-App Admin"
+admin.site.index_title = "Sistema de Controle de Faltas Abonadas"
