@@ -1,0 +1,40 @@
+<!-- templates/abon_app/base.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Sistema de Controle de Abonadas{% endblock %}</title>
+</head>
+<body>
+    
+    {% if user.funcionario.tem_cargo_comum %}
+    <h4>Minhas Abonadas</h4>
+        <p><a href="{% url 'req_abonada' %}">Requerer</a> / Cancelar / Consultar </p>
+    {% endif %}
+
+    {% if user.funcionario.tem_cargo_chefia %}
+    <h4>Minha Equipe</h4>
+        <p>Despachar Requerimentos / Supervisionar</p>
+    {% endif %}
+
+    {% if user.funcionario.faz_gestao_pessoas %}
+    <h4>Gestão de Pessoas</h4>
+        <p>Encerrar / Visão Geral / Relatório por Período</p>
+    {% endif %}
+    
+    <p>--------------------------------------------------</p>
+    
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <p>--------------------------------------------------</p>
+
+    <h5>{{user.funcionario.nome}}</h5>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Desconectar</button>
+    </form>
+
+</body>

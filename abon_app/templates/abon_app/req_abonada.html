@@ -1,0 +1,10 @@
+<!-- templates/registration/req_abonada.html -->
+{% extends "base.html" %}
+{% block title %}Requerimento de Falta Abonada{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Requerer</button>
+</form>
+{% endblock %}

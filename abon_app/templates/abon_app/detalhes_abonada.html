@@ -1,0 +1,11 @@
+<!-- templates/registration/detalhes_abonada.html -->
+{% extends "base.html" %}
+{% block title %}Detalhes da Falta Abonada{% endblock %}
+{% block content %}
+<p>Número: {{req.num_registro}}/{{req.momento_inicio|date:'Y'}}</p>
+<p>Data do Pedido: {{req.momento_inicio}}</p>
+<p>Requerente: {{req.requerente}}</p>
+<p>Aniversário: {{req.eh_aniversario|yesno:"Sim, Não"}}</p>
+<p>Data da Abonada: {{req.data_abonada}}</p>
+<p>Situação: {{req.get_situacao_display}}</p>
+{% endblock %}
