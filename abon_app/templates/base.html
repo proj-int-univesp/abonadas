@@ -19,7 +19,7 @@
 
     {% if user.funcionario.faz_gestao_pessoas %}
     <h4>Gestão de Pessoas</h4>
-        <p>Encerrar / Visão Geral / Relatório por Período</p>
+        <p>Encerrar / <a href="{% url 'abonadas_geral' %}">Visão Geral</a> / Relatório por Período</p>
     {% endif %}
     
     <p>--------------------------------------------------</p>

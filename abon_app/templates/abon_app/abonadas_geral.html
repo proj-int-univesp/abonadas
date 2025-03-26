@@ -1,0 +1,67 @@
+<!-- templates/registration/abonadas_geral.html -->
+{% extends "base.html" %}
+{% block title %}Consulta Geral de Abonadas{% endblock %}
+{% block content %}
+<h2>Consulta Geral de Requerimentos de Abonadas</h2>
+<form method="get">
+
+    <label for="numero">Número:</label>
+    <input type="number"  id="numero" name="numero" value="{{ filtros.numero }}">
+
+    <label for="ano">Ano:</label>
+    <input type="number"  id="ano" name="ano" value="{{ filtros.ano }}">
+
+    <label for="requerente">Requerente:</label>
+    <input type="text" id="requerente" name="requerente" value="{{ filtros.requerente }}">
+
+    <label for="modalidade">Modalidade:</label>
+    <select id="modalidade" name="modalidade">
+        <option value="">Ambas</option>
+        <option value="A" {% if filtros.modalidade == "A" %}selected{% endif %}>Aniversário</option>
+        <option value="C" {% if filtros.modalidade == "C" %}selected{% endif %}>Comum</option>        
+    </select>
+    <br>
+    <br>
+    <label for="data_inicio">Data Inicial da Abonada:</label>
+    <input type="date" id="data_inicio" name="data_inicio" value="{{ filtros.data_inicio }}">
+
+    <label for="data_fim">Data Final da Abonada:</label>
+    <input type="date" id="data_fim" name="data_fim" value="{{ filtros.data_fim }}">
+
+    <label for="situacao">Situação:</label>
+    <select id="situacao" name="situacao">
+        <option value="">Todas</option>
+        <option value="C" {% if filtros.situacao == "C" %}selected{% endif %}>Cancelado</option>
+        <option value="D" {% if filtros.situacao == "D" %}selected{% endif %}>Deferido</option>
+        <option value="I" {% if filtros.situacao == "I" %}selected{% endif %}>Indeferido</option>
+        <option value="T" {% if filtros.situacao == "T" %}selected{% endif %}>Tramitando</option>  
+    </select>
+
+    <button type="submit">Filtrar</button>
+</form>
+<br>
+<table>
+    <thead>
+        <tr>
+            <th>Número</th>
+            <th>Data do Pedido</th>
+            <th>Requerente</th>
+            <th>Modalidade</th>
+            <th>Data da Abonada</th>
+            <th>Situação</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for abon in abon %}
+        <tr>
+            <td>{{ abon.num_registro }}/{{abon.momento_inicio|date:'Y'}}</td>
+            <td>{{ abon.momento_inicio|date:'d/m/y H:i' }}</td>
+            <td>{{ abon.requerente }}</td>
+            <td>{{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}</td>
+            <td>{{ abon.data_abonada }}</td>
+            <td>{{ abon.get_situacao_display }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

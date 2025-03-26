@@ -178,6 +178,7 @@ class ReqAbonada(models.Model):
         
         abonadas_mes = ReqAbonada.objects.filter(requerente=funcionario, 
                                                 data_abonada__month=self.data_abonada.month,
+                                                data_abonada__year=self.data_abonada.year,
                                                 situacao__in=['T', 'D'], 
                                                 eh_aniversario=self.eh_aniversario).count()
         

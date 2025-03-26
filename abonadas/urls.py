@@ -22,6 +22,7 @@ urlpatterns = [
     path('', views.MenuView.as_view(), name='menu'),
     path('abonada/requerer/', views.RequererAbonada.as_view(), name='req_abonada'),
     path('abonada/<int:pk>/', views.DetalhesAbonada.as_view(), name='detalhes_abonada'),
+    path('abonadas/consulta-geral/', views.ConsultaGeralAbonadas.as_view(), name='abonadas_geral'),
     path("accounts/", include("django.contrib.auth.urls")),
     path('admin/', admin.site.urls),
 ]
