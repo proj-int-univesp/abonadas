@@ -1,12 +1,13 @@
 from datetime import datetime as dt
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.db.models.functions import ExtractYear
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, FormView, ListView, TemplateView
-from .forms import RequererAbonada
-from .models import Configuracao, ReqAbonada
+from .forms import DespacharAbonada, RequererAbonada
+from .models import Configuracao, ReqAbonada, Setor
 
 # Create your views here.
 
@@ -30,7 +31,6 @@ class RequererAbonada(LoginRequiredMixin, FormView):
         
         req_abonada = form.save(commit=False)
         funcionario = self.request.user.funcionario
-        print(funcionario)
         erro = req_abonada.inicio_req(funcionario)
 
         if erro == None:
@@ -48,11 +48,17 @@ class DetalhesAbonada(LoginRequiredMixin, DetailView):
 
     def dispatch(self, request, *args, **kwargs):
 
-        if  request.user.funcionario.cargo_comum is None:
-            return HttpResponseForbidden("Você não tem permissão para acessar esta página."
-                                        " Contate o administrador do sistema.")        
+        usuario = request.user.funcionario
+        req = ReqAbonada.objects.get(pk=self.kwargs['pk'])
+
+        if ((usuario.cargo_comum is not None and req.requerente == usuario) or 
+            (usuario.cargo_chefia is not None and req.requerente.lotacao.responsavel == usuario.cargo_chefia) or
+            usuario.lotacao == Configuracao.objects.get(id=1).setor_gestao_pessoas):
+            
+            return super().dispatch(request, *args, **kwargs)            
         
-        return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("Você não tem permissão para acessar esta página."
+                                        " Contate o administrador do sistema.")        
 
 class ConsultaGeralAbonadas(LoginRequiredMixin, ListView):
 
@@ -112,7 +118,83 @@ class ConsultaGeralAbonadas(LoginRequiredMixin, ListView):
         
         return context
     
-class ConsultaAbonadasParaDespacho(LoginRequiredMixin, ListView):
+class ConsultaAbonadasArquivamento(LoginRequiredMixin, ListView):
+    
+    model = ReqAbonada
+    template_name = 'abon_app/abonadas_arquivamento.html'
+    context_object_name = 'abon'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if  request.user.funcionario.lotacao != Configuracao.objects.get(id=1).setor_gestao_pessoas:
+            return HttpResponseForbidden("Você não tem permissão para acessar esta página."
+                                        " Contate o administrador do sistema.")            
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        # Obtém o queryset base
+        queryset = ReqAbonada.objects.filter(((Q(situacao='T') & 
+                                              Q(data_abonada__lt=dt.now().date())) | 
+                                              Q(situacao='D')) &
+                                              Q(arquivado=False))
+        
+        queryset = queryset.order_by('data_abonada') 
+        
+        return queryset
+    
+def arquivar_abonada(request, pk):
+    
+    if request.user.funcionario.lotacao != Configuracao.objects.get(id=1).setor_gestao_pessoas:
+        return HttpResponseForbidden("Você não tem permissão para realizar esta operação."
+                                    " Contate o administrador do sistema.")            
+    
+    req = ReqAbonada.objects.get(pk=pk)
+    req.arquivado = True
+    req.save()
+    
+    return redirect('abonadas_arquivamento')
+
+class ConsultaAbonadasCancelamento(LoginRequiredMixin, ListView):
+    
+    model = ReqAbonada
+    template_name = 'abon_app/abonadas_cancelamento.html'
+    context_object_name = 'abon'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if  request.user.funcionario.cargo_comum is None:
+            return HttpResponseForbidden("Você não tem permissão para acessar esta página."
+                                        " Contate o administrador do sistema.")           
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        # Obtém o queryset base
+        queryset = ReqAbonada.objects.filter(Q(requerente=self.request.user.funcionario) &
+                                            Q(data_abonada__gte=dt.now().date()) &
+                                            (Q(situacao='D') | Q(situacao='T')))
+        
+        queryset = queryset.order_by('data_abonada') 
+        
+        return queryset
+
+def cancelar_abonada(request, pk):
+
+    req = ReqAbonada.objects.get(pk=pk)
+    usuario = request.user.funcionario
+    
+    if(usuario.cargo_comum is None or req.requerente != usuario):
+        return HttpResponseForbidden("Você não tem permissão para realizar esta operação."
+                                    " Contate o administrador do sistema.")  
+
+    req.momento_cancelamento = dt.now()
+    req.situacao = 'C'
+    req.save()
+    
+    return redirect('abonadas_cancelamento')
+    
+class ConsultaAbonadasDespacho(LoginRequiredMixin, ListView):
 
     model = ReqAbonada
     template_name = 'abon_app/abonadas_despacho.html'
@@ -128,8 +210,58 @@ class ConsultaAbonadasParaDespacho(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         # Obtém o queryset base
-        queryset = ReqAbonada.objects.filter(requerente__setor__in=self.request.user.funcionario.cargo_chefia.setor_set.all(),
+
+        setores_chefia = Setor.objects.filter(responsavel=self.request.user.funcionario.cargo_chefia)
+
+        queryset = ReqAbonada.objects.filter(requerente__lotacao__in=setores_chefia,
                                             situacao='T',
                                             data_abonada__gt=dt.now().date())
         
+        queryset = queryset.order_by('data_abonada') 
+        
         return queryset
+
+class DespacharAbonada(LoginRequiredMixin, FormView):
+
+    form_class = DespacharAbonada
+    template_name = 'abon_app/despacho_abonada.html'
+    success_url = reverse_lazy('abonadas_despacho')
+
+    def dispatch(self, request, *args, **kwargs):
+
+        req = ReqAbonada.objects.get(pk=self.kwargs['pk'])
+        chefe = request.user.funcionario
+
+        if chefe.cargo_chefia == None or req.requerente.lotacao.responsavel != chefe.cargo_chefia:
+            return HttpResponseForbidden("Você não tem permissão para acessar esta página."
+                                        " Contate o administrador do sistema.")        
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        
+        req_abonada = form.save(commit=False)
+        chefe = self.request.user.funcionario
+        erro = req_abonada.despacho_req(chefe)
+        
+        if erro == None:   
+            req_abonada.save()
+        else:
+            form.add_error(None, erro)
+            return super(DespacharAbonada, self).form_invalid(form)
+
+        return super(DespacharAbonada, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        # Adiciona o objeto ao contexto para exibir no template
+        context = super().get_context_data(**kwargs)
+        context['req'] = ReqAbonada.objects.get(pk=self.kwargs['pk'])
+        
+        return context
+
+    def get_form_kwargs(self):
+        # Adiciona o objeto ao form para ser validado
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = ReqAbonada.objects.get(pk=self.kwargs['pk'])
+        
+        return kwargs

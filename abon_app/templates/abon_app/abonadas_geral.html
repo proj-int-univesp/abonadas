@@ -59,7 +59,7 @@
             <td>{{ abon.requerente }}</td>
             <td>{{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}</td>
             <td>{{ abon.data_abonada }}</td>
-            <td>{{ abon.get_situacao_display }}</td>
+            <td><a href="{% url 'detalhes_abonada' abon.id %}">{{abon.get_situacao_display}}</a></td>
         </tr>
         {% endfor %}
     </tbody>

@@ -205,6 +205,24 @@ class ReqAbonada(models.Model):
         self.requerente = funcionario
         
         return None
+    
+    def despacho_req(self, chefe):
+    
+        self.momento_despacho = dt.now()
+        self.chefe = chefe
+        self.cargo_chefe = chefe.cargo_chefia
+        
+        if self.despacho==False:
+            
+            if not self.justificativa or self.justificativa.strip() == "":
+                return "A justificativa é obrigatória para indeferimento!"
+            
+            self.situacao = 'I'
+
+        else:
+            self.situacao = 'D'
+
+        return None
 
     def save(self, *args, **kwargs):
         

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Abonadas para Despachar{% endblock %}
+{% block content %}
+<h2>Requerimentos de Abonadas para Despachar</h2>
+
+<br>
+<table>
+    <thead>
+        <tr>
+            <th>Número</th>
+            <th>Data do Pedido</th>
+            <th>Requerente</th>
+            <th>Modalidade</th>
+            <th>Data da Abonada</th>
+            <th>Situação</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for abon in abon %}
+        <tr>
+            <td>{{ abon.num_registro }}/{{abon.momento_inicio|date:'Y'}}</td>
+            <td>{{ abon.momento_inicio|date:'d/m/y H:i' }}</td>
+            <td>{{ abon.requerente }}</td>
+            <td>{{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}</td>
+            <td>{{ abon.data_abonada }}</td>
+            <td><a href="{% url 'despachar_abonada' abon.id %}">{{ abon.get_situacao_display }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

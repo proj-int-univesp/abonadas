@@ -1,11 +1,26 @@
-<!-- templates/registration/detalhes_abonada.html -->
 {% extends "base.html" %}
 {% block title %}Detalhes da Falta Abonada{% endblock %}
 {% block content %}
+<h4>Requerimento de Falta Abonada</h4>
 <p>Número: {{req.num_registro}}/{{req.momento_inicio|date:'Y'}}</p>
 <p>Data do Pedido: {{req.momento_inicio}}</p>
 <p>Requerente: {{req.requerente}}</p>
 <p>Aniversário: {{req.eh_aniversario|yesno:"Sim, Não"}}</p>
 <p>Data da Abonada: {{req.data_abonada}}</p>
 <p>Situação: {{req.get_situacao_display}}</p>
+<p>--------------------------------------------------</p>
+<h4>Despacho</h4>
+{% if req.momento_despacho %}
+<p>Data do Despacho: {{req.momento_despacho}}</p>
+<p>Responsável: {{req.chefe}}</p>
+<p>Cargo: {{req.cargo_chefe}}</p>
+<p>Despacho: <strong>{{req.despacho|yesno:"Deferido, Indeferido"}}</strong></p>
+<p>Justificativa: {{req.justificativa|default_if_none:"Não há."}}</p>
+{% else %}
+<p>Ainda não houve manifestação do superior hierárquico.</p>
+{% endif %}
+{% if req.momento_cancelamento %}
+<p>--------------------------------------------------</p>
+<h4>Cancelado pelo requerente em: {{req.momento_cancelamento}}</h4>
+{% endif %}
 {% endblock %}

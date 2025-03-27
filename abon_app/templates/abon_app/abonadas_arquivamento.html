@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Consulta Geral de Abonadas{% endblock %}
+{% block content %}
+<h2>Requerimentos de Abonadas para Baixa e Arquivamento</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Número</th>
+            <th>Data do Pedido</th>
+            <th>Requerente</th>
+            <th>Modalidade</th>
+            <th>Data da Abonada</th>
+            <th>Situação</th>
+            <th>Arquivamento</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for abon in abon %}
+        <tr>
+            <td>{{ abon.num_registro }}/{{abon.momento_inicio|date:'Y'}}</td>
+            <td>{{ abon.momento_inicio|date:'d/m/y H:i' }}</td>
+            <td>{{ abon.requerente }}</td>
+            <td>{{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}</td>
+            <td>{{ abon.data_abonada }}</td>
+            <td><a href="{% url 'detalhes_abonada' abon.id %}">{{abon.get_situacao_display}}</a></td>
+            <td><a href="{% url 'arquivar_abonada' abon.id %}">Arquivar</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
