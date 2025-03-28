@@ -1,0 +1,36 @@
+<!-- templates/registration/abonadas_geral.html -->
+{% extends "base.html" %}
+{% block title %}Abonadas por Ano{% endblock %}
+{% block content %}
+<h2>Meus Requerimentos de Falta Abonada</h2>
+<form method="get">
+
+    <label for="ano">Ano:</label>
+    <input type="number"  id="ano" name="ano" value="{{ filtro.ano }}">
+
+    <button type="submit">Filtrar</button>
+</form>
+<br>
+<table>
+    <thead>
+        <tr>
+            <th>Número</th>
+            <th>Data do Pedido</th>
+            <th>Modalidade</th>
+            <th>Data da Abonada</th>
+            <th>Situação</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for abon in abon %}
+        <tr>
+            <td>{{ abon.num_registro }}/{{abon.momento_inicio|date:'Y'}}</td>
+            <td>{{ abon.momento_inicio|date:'d/m/y H:i' }}</td>
+            <td>{{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}</td>
+            <td>{{ abon.data_abonada }}</td>
+            <td><a href="{% url 'detalhes_abonada' abon.id %}">{{abon.get_situacao_display}}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

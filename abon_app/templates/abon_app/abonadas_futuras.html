@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Consulta Geral de Abonadas{% endblock %}
+{% block content %}
+<h2>Abonadas Futuras de Servidores da Minha Equipe</h2>
+<form method="get">
+
+    <label for="requerente">Requerente:</label>
+    <input type="text" id="requerente" name="requerente" value="{{ filtros.requerente }}">
+    
+    <label for="data_inicio">Data Inicial:</label>
+    <input type="date" id="data_inicio" name="data_inicio" value="{{ filtros.data_inicio }}">
+
+    <label for="data_fim">Data Final:</label>
+    <input type="date" id="data_fim" name="data_fim" value="{{ filtros.data_fim }}">
+
+    <button type="submit">Filtrar</button>
+</form>
+<br>
+<table>
+    <thead>
+        <tr>
+            <th>Requerente</th>
+            <th>Modalidade</th>
+            <th>Data da Abonada</th>
+            <th>Situação</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for abon in abon %}
+        <tr>
+            <td>{{ abon.requerente }}</td>
+            <td>{{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}</td>
+            <td>{{ abon.data_abonada }}</td>
+            <td><a href="{% url 'detalhes_abonada' abon.id %}">{{abon.get_situacao_display}}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

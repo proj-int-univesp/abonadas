@@ -9,12 +9,12 @@
     
     {% if user.funcionario.tem_cargo_comum %}
     <h4>Minhas Abonadas</h4>
-        <p><a href="{% url 'req_abonada' %}">Requerer</a> / <a href="{% url 'abonadas_cancelamento' %}">Cancelar</a> / Consultar </p>
+        <p><a href="{% url 'req_abonada' %}">Requerer</a> / <a href="{% url 'abonadas_cancelamento' %}">Cancelar</a> / <a href="{% url 'abonadas_anual' %}">Consultar</a> </p>
     {% endif %}
 
     {% if user.funcionario.tem_cargo_chefia %}
     <h4>Minha Equipe</h4>
-        <p><a href="{% url 'abonadas_despacho' %}">Despachar Requerimentos</a> / Supervisionar</p>
+        <p><a href="{% url 'abonadas_despacho' %}">Despachar Requerimentos</a> / <a href="{% url 'abonadas_futuras' %}">Abonadas Futuras</a> </p>
     {% endif %}
 
     {% if user.funcionario.faz_gestao_pessoas %}

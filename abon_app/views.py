@@ -88,25 +88,38 @@ class ConsultaGeralAbonadas(LoginRequiredMixin, ListView):
         situacao = self.request.GET.get('situacao')
 
         # Aplica os filtros dinamicamente
+
+        filtros = 0
         
         if numero and numero.isdigit():
             queryset = queryset.filter(num_registro=int(numero))
+            filtros += 1
         if ano and ano.isdigit():
             queryset = queryset.filter(momento_inicio__year=int(ano))
+            filtros += 1
         if requerente:
             queryset = queryset.filter(requerente__nome__icontains=requerente)
+            filtros += 1
         if modalidade == 'A':
             queryset = queryset.filter(eh_aniversario=True)
+            filtros += 1
         elif modalidade == 'C':
             queryset = queryset.filter(eh_aniversario=False)
+            filtros += 1
         if data_inicio:
             queryset = queryset.filter(data_abonada__gte=data_inicio)
+            filtros += 1
         if data_fim:
             queryset = queryset.filter(data_abonada__lte=data_fim)
+            filtros += 1
         if situacao:
             queryset = queryset.filter(situacao=situacao)
+            filtros += 1
 
         queryset = queryset.order_by('-momento_inicio') 
+
+        if filtros == 0:
+            queryset = queryset[:20]
 
         return queryset
 
@@ -115,6 +128,40 @@ class ConsultaGeralAbonadas(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)      
 
         context['filtros'] = self.request.GET
+        
+        return context
+
+class ConsultaAbonadasAnual(LoginRequiredMixin, ListView):
+
+    model = ReqAbonada
+    template_name = 'abon_app/abonadas_anual.html'
+    context_object_name = 'abon'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if  request.user.funcionario.cargo_comum is None:
+            return HttpResponseForbidden("Você não tem permissão para acessar esta página."
+                                        " Contate o administrador do sistema.")         
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        
+        # Obtém os parâmetros de filtro da URL (GET)
+        ano = self.request.GET.get('ano')
+
+        # Aplica os filtros dinamicamente      
+        if not ano or not ano.isdigit():
+            ano = dt.now().year
+
+        return ReqAbonada.objects.filter(requerente=self.request.user.funcionario, 
+                                             data_abonada__year=int(ano)).order_by('data_abonada')
+
+    def get_context_data(self, **kwargs):
+        # Adiciona os filtros ao contexto para manter os valores no template
+        context = super().get_context_data(**kwargs)      
+
+        context['filtro'] = self.request.GET
         
         return context
     
@@ -151,6 +198,8 @@ def arquivar_abonada(request, pk):
     
     req = ReqAbonada.objects.get(pk=pk)
     req.arquivado = True
+    if req.situacao == 'T':
+        req.situacao = 'D'
     req.save()
     
     return redirect('abonadas_arquivamento')
@@ -265,3 +314,58 @@ class DespacharAbonada(LoginRequiredMixin, FormView):
         kwargs['instance'] = ReqAbonada.objects.get(pk=self.kwargs['pk'])
         
         return kwargs
+
+class ConsultaAbonadasFuturas(LoginRequiredMixin, ListView):
+
+    model = ReqAbonada
+    template_name = 'abon_app/abonadas_futuras.html'
+    context_object_name = 'abon'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if  request.user.funcionario.cargo_chefia == None:
+            return HttpResponseForbidden("Você não tem permissão para acessar esta página."
+                                        " Contate o administrador do sistema.")          
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        # Obtém o queryset base
+        queryset = ReqAbonada.objects.filter(requerente__lotacao__responsavel=
+                                             self.request.user.funcionario.cargo_chefia,
+                                             data_abonada__gte=dt.now().date(),
+                                             situacao__in=['T', 'D'])
+
+        # Obtém os parâmetros de filtro da URL (GET)
+        requerente = self.request.GET.get('requerente')
+        data_inicio = self.request.GET.get('data_inicio')
+        data_fim = self.request.GET.get('data_fim')
+
+        # Aplica os filtros dinamicamente
+
+        filtros = 0
+        
+        if requerente:
+            queryset = queryset.filter(requerente__nome__icontains=requerente)
+            filtros += 1
+        if data_inicio:
+            queryset = queryset.filter(data_abonada__gte=data_inicio)
+            filtros += 1
+        if data_fim:
+            queryset = queryset.filter(data_abonada__lte=data_fim)
+            filtros += 1
+
+        queryset = queryset.order_by('data_abonada') 
+
+        if filtros == 0:
+            return queryset[:20]
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        # Adiciona os filtros ao contexto para manter os valores no template
+        context = super().get_context_data(**kwargs)      
+
+        context['filtros'] = self.request.GET
+        
+        return context
