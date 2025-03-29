@@ -19,7 +19,7 @@
 
     {% if user.funcionario.faz_gestao_pessoas %}
     <h4>Gestão de Pessoas</h4>
-        <p><a href="{% url 'abonadas_arquivamento' %}">Arquivar</a> / <a href="{% url 'abonadas_geral' %}">Visão Geral</a> / Relatório por Período</p>
+        <p><a href="{% url 'abonadas_arquivamento' %}">Arquivar</a> / <a href="{% url 'abonadas_geral' %}">Visão Geral</a> / <a href="{% url 'sol_rel_abon_periodo' %}">Relatório por Período</a></p>
     {% endif %}
     
     <p>--------------------------------------------------</p>

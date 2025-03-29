@@ -28,9 +28,11 @@ urlpatterns = [
     path('abonadas/anual/', views.ConsultaAbonadasAnual.as_view(), name='abonadas_anual'),
     path('abonadas/arquivamento/', views.ConsultaAbonadasArquivamento.as_view(), name='abonadas_arquivamento'),
     path('abonadas/cancelamento/', views.ConsultaAbonadasCancelamento.as_view(), name='abonadas_cancelamento'),
-    path('abonadas/consulta-geral/', views.ConsultaGeralAbonadas.as_view(), name='abonadas_geral'),
+    path('abonadas/consulta-geral/', views.ConsultaGeralAbonadas.as_view(), name='abonadas_geral'),    
     path('abonadas/despachar/', views.ConsultaAbonadasDespacho.as_view(), name='abonadas_despacho'),
+    path('abonadas/relatorio-periodo/solicitar/', views.FormRelatorioPeriodo.as_view(), name='sol_rel_abon_periodo'),
     path('abonadas/futuras/', views.ConsultaAbonadasFuturas.as_view(), name='abonadas_futuras'),
+    path('relatorio/pdf/', views.gerar_relatorio_pdf, name='relatorio_pdf'),
     path("accounts/", include("django.contrib.auth.urls")),
     path('admin/', admin.site.urls),
 ]

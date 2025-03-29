@@ -2,11 +2,14 @@ from datetime import datetime as dt
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.db.models.functions import ExtractYear
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.template.loader import render_to_string
+from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, FormView, ListView, TemplateView
-from .forms import DespacharAbonada, RequererAbonada
+from io import BytesIO
+from weasyprint import HTML
+from .forms import DespacharAbonada, FormRelatorioPeriodo, RequererAbonada
 from .models import Configuracao, ReqAbonada, Setor
 
 # Create your views here.
@@ -369,3 +372,73 @@ class ConsultaAbonadasFuturas(LoginRequiredMixin, ListView):
         context['filtros'] = self.request.GET
         
         return context
+
+
+def gerar_relatorio_pdf(request):
+
+    # Verifica se o usuário tem permissão para acessar o relatório
+    if request.user.funcionario.lotacao != Configuracao.objects.get(id=1).setor_gestao_pessoas:
+        return HttpResponseForbidden("Você não tem permissão para acessar esta página."
+                                     " Contate o administrador do sistema.")
+
+    data_inicio_str = request.GET.get('data_inicio')
+    data_fim_str = request.GET.get('data_fim')
+
+    data_inicio = dt.strptime(data_inicio_str, '%Y-%m-%d') 
+    data_fim = dt.strptime(data_fim_str, '%Y-%m-%d')
+
+    if not data_inicio or not data_fim:
+        return HttpResponseBadRequest("Parâmetros inválidos. "
+        "Por favor, forneça uma data inicial e uma data final.")
+
+    # Dados para o relatório
+    dados = {
+        'abonadas': ReqAbonada.objects.filter(data_abonada__gte=data_inicio, 
+                                            data_abonada__lte=data_fim,
+                                            situacao__in=['D','T'])
+                                            .order_by('data_abonada', 
+                                            'requerente__lotacao',
+                                            'requerente__nome'),
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
+        'setor_gestao_pessoas': Configuracao.objects.get(id=1).setor_gestao_pessoas
+    }
+
+    # Renderiza o template HTML
+    template_path = 'abon_app/relatorio.html'
+    html_string = render_to_string(template_path, dados)
+
+    # Converte o HTML em PDF
+    pdf_file = BytesIO()
+    HTML(string=html_string).write_pdf(pdf_file)
+
+    # Configura a resposta HTTP para PDF
+    response = HttpResponse(pdf_file.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="relatorio_abonadas.pdf"'
+
+    return response
+
+class FormRelatorioPeriodo(LoginRequiredMixin, FormView):
+
+    form_class = FormRelatorioPeriodo
+    template_name = 'abon_app/sol_rel_abon_periodo.html'
+    success_url = reverse_lazy('relatorio_pdf')
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if  request.user.funcionario.lotacao != Configuracao.objects.get(id=1).setor_gestao_pessoas:
+            return HttpResponseForbidden("Você não tem permissão para acessar esta página."
+                                        " Contate o administrador do sistema.")        
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        # Obtém os dados do formulário
+        data_inicio = form.cleaned_data.get('data_inicial')
+        data_fim = form.cleaned_data.get('data_final')
+
+        # Constrói a URL com os parâmetros
+        url = reverse('relatorio_pdf') + f'?data_inicio={data_inicio}&data_fim={data_fim}'
+
+        # Redireciona para a URL
+        return redirect(url)
