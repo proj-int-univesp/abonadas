@@ -1,12 +1,17 @@
-<!-- templates/registration/req_abonada.html -->
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 {% block title %}Requerimento de Falta Abonada{% endblock %}
 {% block content %}
-<h2>Requerimento de Falta Abonada</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form }}
-    <br>
-    <button type="submit">Requerer</button>
-</form>
+<div class="container mt-4">
+    <h2 class="mb-4 text-light bg-dark p-3 rounded text-center">Requerimento de Falta Abonada</h2>
+    <div class="bg-light p-4 rounded shadow">
+        <form method="post" class="text-dark">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary">Enviar</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

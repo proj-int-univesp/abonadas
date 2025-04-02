@@ -1,67 +1,94 @@
-<!-- templates/registration/abonadas_geral.html -->
 {% extends "base.html" %}
 {% block title %}Consulta Geral de Abonadas{% endblock %}
 {% block content %}
-<h2>Consulta Geral de Requerimentos de Abonadas</h2>
-<form method="get">
+<div class="container mt-4">
+    <h2 class="mb-4 text-light bg-dark p-3 rounded text-center">Consulta Geral de Requerimentos de Abonadas</h2>
 
-    <label for="numero">Número:</label>
-    <input type="number"  id="numero" name="numero" value="{{ filtros.numero }}">
+    <form method="get" class="bg-light p-4 rounded shadow">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label for="numero" class="form-label text-dark">Número:</label>
+                <input type="number" id="numero" name="numero" class="form-control" value="{{ filtros.numero }}">
+            </div>
+            <div class="col-md-3">
+                <label for="ano" class="form-label text-dark">Ano:</label>
+                <input type="number" id="ano" name="ano" class="form-control" value="{{ filtros.ano }}">
+            </div>
+            <div class="col-md-6">
+                <label for="requerente" class="form-label text-dark">Requerente:</label>
+                <input type="text" id="requerente" name="requerente" class="form-control" value="{{ filtros.requerente }}">
+            </div>
+        </div>
+        <div class="row g-3 mt-2">
+            <div class="col-md-3">
+                <label for="modalidade" class="form-label text-dark">Modalidade:</label>
+                <select id="modalidade" name="modalidade" class="form-select">
+                    <option value="">Ambas</option>
+                    <option value="A" {% if filtros.modalidade == "A" %}selected{% endif %}>Aniversário</option>
+                    <option value="C" {% if filtros.modalidade == "C" %}selected{% endif %}>Comum</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="data_inicio" class="form-label text-dark">Data Inicial da Abonada:</label>
+                <input type="date" id="data_inicio" name="data_inicio" class="form-control" value="{{ filtros.data_inicio }}">
+            </div>
+            <div class="col-md-3">
+                <label for="data_fim" class="form-label text-dark">Data Final da Abonada:</label>
+                <input type="date" id="data_fim" name="data_fim" class="form-control" value="{{ filtros.data_fim }}">
+            </div>
+            <div class="col-md-3">
+                <label for="situacao" class="form-label text-dark">Situação:</label>
+                <select id="situacao" name="situacao" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="C" {% if filtros.situacao == "C" %}selected{% endif %}>Cancelado</option>
+                    <option value="D" {% if filtros.situacao == "D" %}selected{% endif %}>Deferido</option>
+                    <option value="I" {% if filtros.situacao == "I" %}selected{% endif %}>Indeferido</option>
+                    <option value="T" {% if filtros.situacao == "T" %}selected{% endif %}>Tramitando</option>
+                </select>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </form>
 
-    <label for="ano">Ano:</label>
-    <input type="number"  id="ano" name="ano" value="{{ filtros.ano }}">
-
-    <label for="requerente">Requerente:</label>
-    <input type="text" id="requerente" name="requerente" value="{{ filtros.requerente }}">
-
-    <label for="modalidade">Modalidade:</label>
-    <select id="modalidade" name="modalidade">
-        <option value="">Ambas</option>
-        <option value="A" {% if filtros.modalidade == "A" %}selected{% endif %}>Aniversário</option>
-        <option value="C" {% if filtros.modalidade == "C" %}selected{% endif %}>Comum</option>        
-    </select>
-    <br>
-    <br>
-    <label for="data_inicio">Data Inicial da Abonada:</label>
-    <input type="date" id="data_inicio" name="data_inicio" value="{{ filtros.data_inicio }}">
-
-    <label for="data_fim">Data Final da Abonada:</label>
-    <input type="date" id="data_fim" name="data_fim" value="{{ filtros.data_fim }}">
-
-    <label for="situacao">Situação:</label>
-    <select id="situacao" name="situacao">
-        <option value="">Todas</option>
-        <option value="C" {% if filtros.situacao == "C" %}selected{% endif %}>Cancelado</option>
-        <option value="D" {% if filtros.situacao == "D" %}selected{% endif %}>Deferido</option>
-        <option value="I" {% if filtros.situacao == "I" %}selected{% endif %}>Indeferido</option>
-        <option value="T" {% if filtros.situacao == "T" %}selected{% endif %}>Tramitando</option>  
-    </select>
-
-    <button type="submit">Filtrar</button>
-</form>
-<br>
-<table>
-    <thead>
-        <tr>
-            <th>Número</th>
-            <th>Data do Pedido</th>
-            <th>Requerente</th>
-            <th>Modalidade</th>
-            <th>Data da Abonada</th>
-            <th>Situação</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for abon in abon %}
-        <tr>
-            <td>{{ abon.num_registro }}/{{abon.momento_inicio|date:'Y'}}</td>
-            <td>{{ abon.momento_inicio|date:'d/m/y H:i' }}</td>
-            <td>{{ abon.requerente }}</td>
-            <td>{{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}</td>
-            <td>{{ abon.data_abonada }}</td>
-            <td><a href="{% url 'detalhes_abonada' abon.id %}">{{abon.get_situacao_display}}</a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="table-responsive mt-4">
+        <table class="table table-dark table-hover table-striped animate__animated animate__fadeIn">
+            <thead class="thead-light">
+                <tr class="text-center">
+                    <th>Número</th>
+                    <th>Data do Pedido</th>
+                    <th>Requerente</th>
+                    <th>Modalidade</th>
+                    <th>Data da Abonada</th>
+                    <th>Situação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for abon in abon %}
+                <tr class="align-middle text-center">
+                    <td>{{ abon.num_registro }}/{{ abon.momento_inicio|date:'Y' }}</td>
+                    <td>{{ abon.momento_inicio|date:'d/m/y H:i' }}</td>
+                    <td>{{ abon.requerente }}</td>
+                    <td>
+                        <span class="badge {% if abon.eh_aniversario %}bg-success{% else %}bg-primary{% endif %}">
+                            {{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}
+                        </span>
+                    </td>
+                    <td>{{ abon.data_abonada }}</td>
+                    <td>
+                        <a href="{% url 'detalhes_abonada' abon.id %}" class="btn btn-info btn-sm">
+                            <i class="fas fa-eye"></i> {{ abon.get_situacao_display }}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-warning fw-bold">Nenhuma abonada encontrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

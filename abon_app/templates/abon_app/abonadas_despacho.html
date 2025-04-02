@@ -1,31 +1,50 @@
 {% extends "base.html" %}
-{% block title %}Abonadas para Despachar{% endblock %}
+{% block title %}Consulta Geral de Abonadas{% endblock %}
 {% block content %}
-<h2>Requerimentos de Abonadas para Despachar</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-light bg-dark p-3 rounded text-center">Requerimentos de Abonadas Passíveis de Cancelamento</h2>
 
-<br>
-<table>
-    <thead>
-        <tr>
-            <th>Número</th>
-            <th>Data do Pedido</th>
-            <th>Requerente</th>
-            <th>Modalidade</th>
-            <th>Data da Abonada</th>
-            <th>Situação</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for abon in abon %}
-        <tr>
-            <td>{{ abon.num_registro }}/{{abon.momento_inicio|date:'Y'}}</td>
-            <td>{{ abon.momento_inicio|date:'d/m/y H:i' }}</td>
-            <td>{{ abon.requerente }}</td>
-            <td>{{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}</td>
-            <td>{{ abon.data_abonada }}</td>
-            <td><a href="{% url 'despachar_abonada' abon.id %}">{{ abon.get_situacao_display }}</a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="table-responsive">
+        <table class="table table-dark table-hover table-striped animate__animated animate__fadeIn">
+            <thead class="thead-light">
+                <tr class="text-center">
+                    <th>Número</th>
+                    <th>Data do Pedido</th>
+                    <th>Modalidade</th>
+                    <th>Data da Abonada</th>
+                    <th>Situação</th>
+                    <th>Cancelamento</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for abon in abon %}
+                <tr class="align-middle text-center">
+                    <td>{{ abon.num_registro }}/{{ abon.momento_inicio|date:'Y' }}</td>
+                    <td>{{ abon.momento_inicio|date:'d/m/y H:i' }}</td>
+                    <td>
+                        <span class="badge {% if abon.eh_aniversario %}bg-success{% else %}bg-primary{% endif %}">
+                            {{ abon.eh_aniversario|yesno:"Aniversário, Comum" }}
+                        </span>
+                    </td>
+                    <td>{{ abon.data_abonada }}</td>
+                    <td>
+                        <a href="{% url 'detalhes_abonada' abon.id %}" class="btn btn-info btn-sm">
+                            <i class="fas fa-info-circle"></i> {{ abon.get_situacao_display }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'cancelar_abonada' abon.id %}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-warning fw-bold">Nenhum requerimento encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
