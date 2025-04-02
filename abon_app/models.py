@@ -46,6 +46,8 @@ class CargoComum(models.Model):
 class CargoChefia(models.Model):
     
     nome = models.CharField(max_length=50)
+    subordinacao = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True,
+                                     verbose_name="Subordinado a")
     detalhes = models.CharField(max_length=250, blank=True, null=True)
     ativo = models.BooleanField(default=True)
 
