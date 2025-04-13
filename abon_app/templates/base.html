@@ -70,14 +70,17 @@
     </main>
 
     <hr class="border-light">
-
+    
+    {% if user.is_authenticated %}
     <footer class="bg-dark text-white text-center py-3 mt-4">
         <p>Bem-vindo, {{ user.funcionario.nome }}</p>
-        <form action="{% url 'logout' %}" method="post">
+        <form action="{% url 'logout' %}" method="post" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Desconectar</button>
         </form>
     </footer>
+    {% endif %}
+
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
