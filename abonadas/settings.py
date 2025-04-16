@@ -92,9 +92,9 @@ WSGI_APPLICATION = 'abonadas.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '123',
+        'NAME': 'pi1',
+        'USER': 'drubens',
+        'PASSWORD': 'B@n2na',
         'HOST': 'localhost',
         'PORT': '5432'
     }

@@ -1,26 +1,66 @@
 {% extends "base.html" %}
 {% block title %}Detalhes da Falta Abonada{% endblock %}
 {% block content %}
-<h4>Requerimento de Falta Abonada</h4>
-<p>Número: {{req.num_registro}}/{{req.momento_inicio|date:'Y'}}</p>
-<p>Data do Pedido: {{req.momento_inicio}}</p>
-<p>Requerente: {{req.requerente}}</p>
-<p>Aniversário: {{req.eh_aniversario|yesno:"Sim, Não"}}</p>
-<p>Data da Abonada: {{req.data_abonada}}</p>
-<p>Situação: {{req.get_situacao_display}}</p>
-<p>--------------------------------------------------</p>
-<h4>Despacho</h4>
-{% if req.momento_despacho %}
-<p>Data do Despacho: {{req.momento_despacho}}</p>
-<p>Responsável: {{req.chefe}}</p>
-<p>Cargo: {{req.cargo_chefe}}</p>
-<p>Despacho: <strong>{{req.despacho|yesno:"Deferido, Indeferido"}}</strong></p>
-<p>Justificativa: {{req.justificativa|default_if_none:"Não há."}}</p>
-{% else %}
-<p>Ainda não houve manifestação do superior hierárquico.</p>
-{% endif %}
+
 {% if req.momento_cancelamento %}
-<p>--------------------------------------------------</p>
-<h4>Cancelado pelo requerente em: {{req.momento_cancelamento}}</h4>
+<div class="row">
+<div class="col-md-8 mx-auto mb-8">
+    <div class="card bg-secondary text-white">
+        <div class="card-header text-white bg-danger">
+            <h4><strong>Cancelado pelo Requerente em {{req.momento_cancelamento}} h</strong></h4>
+        </div>
+    </div>
+</div>
+</div>
+<br>
 {% endif %}
+
+<div class="row">
+<div class="col-md-8 mx-auto mb-8">
+    <div class="card bg-secondary text-white">
+        <div class="card-header bg-primary">
+            <h4><strong>Requerimento de Falta Abonada nº {{req.num_registro}}/{{req.momento_inicio|date:'Y'}}</strong></h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Data do Pedido:</strong> {{req.momento_inicio}}</p>
+            <p><strong>Requerente:</strong> {{req.requerente}}</p>
+            <p><strong>Aniversário:</strong> {{req.eh_aniversario|yesno:"Sim, Não"}}</p>
+            <p><strong>Data da Abonada:</strong> {{req.data_abonada}}</p>
+            <p><strong>Situação:</strong> {{req.get_situacao_display}}</p>
+        </div>
+    </div>
+</div>
+</div>
+<br>
+
+<div class="row">
+{% if req.momento_despacho %}
+<div class="col-md-8 mx-auto mb-8">
+    <div class="card bg-secondary text-white">
+        {% if req.despacho %} 
+        <div class="card-header text-white bg-success">
+        {% else %}
+        <div class="card-header text-white bg-danger">
+        {% endif %}
+            <h4><strong>Despacho: {{req.despacho|yesno:"Deferido, Indeferido"}}</strong></h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Data do Despacho:</strong> {{req.momento_despacho}}</p>
+            <p><strong>Justificativa:</strong> {{req.justificativa|default_if_none:"Não há."}}</p>
+            <p><strong>Responsável:</strong> {{req.chefe}}</p>
+            <p><strong>Cargo:</strong> {{req.cargo_chefe}}</p>            
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="col-md-8 mx-auto mb-8">
+    <div class="card bg-secondary text-white">
+        <div class="card-header bg-secondary">
+            <h4><strong>Não houve registro de manifestação do superior hierárquico.</strong></h4>
+        </div>
+    </div>
+</div>
+{% endif %}
+</div>
+
 {% endblock %}

@@ -1,18 +1,33 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 {% block title %}Despachar Abonada{% endblock %}
 {% block content %}
-<p>Número: {{req.num_registro}}/{{req.momento_inicio|date:'Y'}}</p>
-<p>Data do Pedido: {{req.momento_inicio}}</p>
-<p>Requerente: {{req.requerente}}</p>
-<p>Aniversário: {{req.eh_aniversario|yesno:"Sim, Não"}}</p>
-<p>Data da Abonada: {{req.data_abonada}}</p>
-<p>Situação: {{req.get_situacao_display}}</p>
-<p>--------------------------------------------------</p>
-<h3>Despacho:</h3>
-<form method="post">
-    {% csrf_token %}
-    {{ form }}
-    <br>
-    <button type="submit">Despachar</button>
-</form>
+<h2 class="mb-4 text-light bg-dark p-3 rounded text-center">Despachar Requerimento</h2>
+<div class="row">
+    <div class="col-md-8 mx-auto mb-8">
+        <div class="card bg-secondary text-white">
+            <div class="card-header bg-primary">
+                <h4><strong>Requerimento de Falta Abonada nº {{req.num_registro}}/{{req.momento_inicio|date:'Y'}}</strong></h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Data do Pedido:</strong> {{req.momento_inicio}}</p>
+                <p><strong>Requerente:</strong> {{req.requerente}}</p>
+                <p><strong>Aniversário:</strong> {{req.eh_aniversario|yesno:"Sim, Não"}}</p>
+                <p><strong>Data da Abonada:</strong> {{req.data_abonada}}</p>
+                <p><strong>Situação:</strong> {{req.get_situacao_display}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container mt-4">
+    <div class="bg-light p-4 rounded shadow">
+        <form method="post" class="text-dark">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary">Despachar</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
