@@ -6,11 +6,11 @@
 
     <form method="get" class="bg-light p-4 rounded shadow">
         <div class="row g-3">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label for="numero" class="form-label text-dark">Número:</label>
                 <input type="number" id="numero" name="numero" class="form-control" value="{{ filtros.numero }}">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label for="ano" class="form-label text-dark">Ano:</label>
                 <input type="number" id="ano" name="ano" class="form-control" value="{{ filtros.ano }}">
             </div>
@@ -18,16 +18,16 @@
                 <label for="requerente" class="form-label text-dark">Requerente:</label>
                 <input type="text" id="requerente" name="requerente" class="form-control" value="{{ filtros.requerente }}">
             </div>
-        </div>
-        <div class="row g-3 mt-2">
-            <div class="col-md-3">
-                <label for="modalidade" class="form-label text-dark">Modalidade:</label>
+            <div class="col-md-2">
+                <label for="modalidade" class="form-label text-dark">Modalidade:</label><br>
                 <select id="modalidade" name="modalidade" class="form-select">
                     <option value="">Ambas</option>
                     <option value="A" {% if filtros.modalidade == "A" %}selected{% endif %}>Aniversário</option>
                     <option value="C" {% if filtros.modalidade == "C" %}selected{% endif %}>Comum</option>
                 </select>
             </div>
+        </div>
+        <div class="row g-3 mt-2">            
             <div class="col-md-3">
                 <label for="data_inicio" class="form-label text-dark">Data Inicial da Abonada:</label>
                 <input type="date" id="data_inicio" name="data_inicio" class="form-control" value="{{ filtros.data_inicio }}">
@@ -36,14 +36,25 @@
                 <label for="data_fim" class="form-label text-dark">Data Final da Abonada:</label>
                 <input type="date" id="data_fim" name="data_fim" class="form-control" value="{{ filtros.data_fim }}">
             </div>
-            <div class="col-md-3">
-                <label for="situacao" class="form-label text-dark">Situação:</label>
+            <div class="col-md-2">
+                <label for="situacao" class="form-label text-dark">Situação:</label><br>
                 <select id="situacao" name="situacao" class="form-select">
                     <option value="">Todas</option>
                     <option value="C" {% if filtros.situacao == "C" %}selected{% endif %}>Cancelado</option>
                     <option value="D" {% if filtros.situacao == "D" %}selected{% endif %}>Deferido</option>
                     <option value="I" {% if filtros.situacao == "I" %}selected{% endif %}>Indeferido</option>
                     <option value="T" {% if filtros.situacao == "T" %}selected{% endif %}>Tramitando</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="ordenacao" class="form-label text-dark">Ordenação:</label><br>
+                <select id="ordenacao" name="ordenacao" class="form-select">
+                    <option value="momento_inicio" {% if filtros.ordenacao == 'momento_inicio' %}selected{% endif %}>Data de Criação (Crescente)</option>
+                    <option value="-momento_inicio" {% if not filtros.ordenacao or filtros.ordenacao == '-momento_inicio' %}selected{% endif %}>Data de Criação (Decrescente)</option>
+                    <option value="requerente__nome" {% if filtros.ordenacao == 'requerente__nome' %}selected{% endif %}>Nome do Requerente (Crescente)</option>
+                    <option value="-requerente__nome" {% if filtros.ordenacao == '-requerente__nome' %}selected{% endif %}>Nome do Requerente (Decrescente)</option>
+                    <option value="data_abonada" {% if filtros.ordenacao == 'data_abonada' %}selected{% endif %}>Data da Abonada (Crescente)</option>
+                    <option value="-data_abonada" {% if filtros.ordenacao == '-data_abonada' %}selected{% endif %}>Data da Abonada (Decrescente)</option>
                 </select>
             </div>
         </div>

@@ -2,14 +2,25 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-from .models import CargoChefia, CargoComum, Configuracao, Funcionario, Setor
+from .models import CalendarioFeriados, CargoChefia, CargoComum, Configuracao, Feriado, Funcionario, Setor
 # Register your models here.
+
+class FeriadoInline(admin.StackedInline):
+  model = Feriado
+  extra = 1
+  verbose_name = "feriado"
+  verbose_name_plural = "feriados"
 
 class FuncionarioInline(admin.StackedInline):
   model=Funcionario
   can_delete = False
   verbose_name = "funcionário"
   verbose_name_plural = "funcionários"
+
+class CalendarioFeriadosAdmin(admin.ModelAdmin):
+
+  inlines = [FeriadoInline]
+  list_display = ("exercicio",)
 
 class ConfiguracaoAdmin(admin.ModelAdmin):
 
@@ -44,6 +55,7 @@ class UserAdmin(BaseUserAdmin):
         new.append((name, fields_dict))
     return new
 
+admin.site.register(CalendarioFeriados, CalendarioFeriadosAdmin)
 admin.site.register(CargoChefia)
 admin.site.register(CargoComum)
 admin.site.register(Configuracao, ConfiguracaoAdmin)

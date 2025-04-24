@@ -218,6 +218,7 @@ class ConsultaGeralAbonadas(LoginRequiredMixin, ListView):
         data_inicio = self.request.GET.get('data_inicio')
         data_fim = self.request.GET.get('data_fim')
         situacao = self.request.GET.get('situacao')
+        ordenacao = self.request.GET.get('ordenacao')
 
         # Aplica os filtros dinamicamente
 
@@ -247,8 +248,11 @@ class ConsultaGeralAbonadas(LoginRequiredMixin, ListView):
         if situacao:
             queryset = queryset.filter(situacao=situacao)
             filtros += 1
-
-        queryset = queryset.order_by('-momento_inicio') 
+        
+        if ordenacao in ['momento_inicio', '-momento_inicio', 'requerente__nome', '-requerente__nome', 'data_abonada', '-data_abonada']:
+            queryset = queryset.order_by(ordenacao)
+        else:
+            queryset = queryset.order_by('-momento_inicio')
 
         if filtros == 0:
             queryset = queryset[:20]
@@ -260,6 +264,7 @@ class ConsultaGeralAbonadas(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)      
 
         context['filtros'] = self.request.GET
+        context['ordenacao'] = self.request.GET.get('ordenacao', '-momento_inicio')  # Ordenação padrão
         
         return context
     

@@ -1,7 +1,9 @@
 from datetime import datetime as dt, timedelta
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
+from django.utils.dateformat import format
 
 # Create your models here.
 
@@ -72,6 +74,44 @@ class Configuracao(SingletonModel):
     class Meta:
         verbose_name = "Configuração"
         verbose_name_plural = "Configurações"
+
+class CalendarioFeriados(models.Model):
+
+    exercicio = models.PositiveSmallIntegerField(unique=True, verbose_name="Exercício")
+    descricao = models.CharField(max_length=200, verbose_name="Descrição",
+                                 blank=True, null=True)
+
+    def __str__(self):
+        return str(self.exercicio)
+    
+    class Meta:
+        verbose_name = "Calendário de Feriados"
+        verbose_name_plural = "Calendários de Feriados"
+        ordering = ['exercicio']
+
+class Feriado(models.Model):
+    
+    nome = models.CharField(max_length=50, verbose_name="Nome")
+    data = models.DateField(verbose_name="Data")
+    calendario = models.ForeignKey('CalendarioFeriados', on_delete=models.CASCADE, 
+                                   verbose_name="Calendário")
+    
+    def clean(self):
+        
+        if not self.calendario:
+            raise ValidationError("O feriado deve estar associado a um calendário.")
+        
+        # Aqui você pode adicionar validações específicas, como verificar se a data está no ano do calendário
+        if hasattr(self.calendario, 'exercicio') and self.data.year != self.calendario.exercicio:
+            raise ValidationError(f"A data do feriado ({self.data.strftime('%d/%m/%Y')}) deve estar no ano do calendário ({self.calendario.exercicio}).")
+
+    def __str__(self):
+        return self.nome + " (" + str(self.data.strftime('%d/%m/%Y')) + ")"
+    
+    class Meta:
+        verbose_name = "Feriado"
+        verbose_name_plural = "Feriados"
+        ordering = ['data']
 
 class Funcionario(models.Model):
     
@@ -175,6 +215,13 @@ class ReqAbonada(models.Model):
         if self.data_abonada < dt.now().date():
             return "A data da abonada não pode ser anterior à data atual!"
         
+        if self.data_abonada.weekday() in [5, 6]:
+            return "A data da abonada não pode ser em um final de semana!"
+        
+        if self.data_abonada in Feriado.objects.filter(calendario__exercicio=dt.now().year).values_list('data', flat=True):
+            nome_feriado = Feriado.objects.get(data=self.data_abonada).nome
+            return "A data da abonada não pode ser em um feriado, ponto facultativo ou similar (" + nome_feriado + ")!"
+        
         if self.data_abonada < dt.now().date() + timedelta(days=Configuracao.objects.get(id=1).min_dias_antes_abonada):
             return "A antecedência mínima para solicitação de abonada é de " + str(Configuracao.objects.get(id=1).min_dias_antes_abonada) + " dias!"
         
@@ -187,7 +234,8 @@ class ReqAbonada(models.Model):
         if self.eh_aniversario:
             
             if self.data_abonada.month != funcionario.data_nascimento.month:
-                return "A abonada de aniversário só pode ser requerida para o mês de aniversário do funcionário!"
+                return ("A sua abonada de aniversário só pode ser requerida para o mês de " + 
+                        format(funcionario.data_nascimento, 'F') + "!")
             
             if abonadas_mes >= 1:
                 return "Sua abonada de aniversário já foi requerida!"
