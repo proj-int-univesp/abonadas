@@ -11,7 +11,7 @@ from io import BytesIO
 from weasyprint import HTML
 from .forms import DespacharAbonada, FormRelatorioPeriodo, RequererAbonada
 from .models import CargoChefia, Configuracao, ReqAbonada, Setor
-
+from django.conf import settings
 
 class ConsultaAbonadasAnual(LoginRequiredMixin, ListView):
 
@@ -470,10 +470,7 @@ def gerar_relatorio_pdf(request):
 
     # Converte o HTML em PDF
     pdf_file = BytesIO()
-    HTML(string=html_string).write_pdf(pdf_file)
+    HTML(string=html_string, base_url=request.build_absolute_uri(settings.STATIC_URL)).write_pdf(pdf_file)
+    pdf_file.seek(0)
 
-    # Configura a resposta HTTP para PDF
-    response = HttpResponse(pdf_file.getvalue(), content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="relatorio_abonadas.pdf"'
-
-    return response
+    return HttpResponse(pdf_file.read(), content_type='application/pdf')

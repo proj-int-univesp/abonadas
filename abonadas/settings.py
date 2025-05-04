@@ -92,9 +92,9 @@ WSGI_APPLICATION = 'abonadas.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pi1',
-        'USER': 'drubens',
-        'PASSWORD': 'B@n2na',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': '123',
         'HOST': 'localhost',
         'PORT': '5432'
     }
@@ -144,3 +144,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGOUT_REDIRECT_URL = "menu" # Define a url de encaminhamento do usuário após fazer o logout do sistema
 
+import os
+
+# Onde os arquivos serão coletados com `collectstatic`
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Onde você guarda seus arquivos estáticos no projeto durante o desenvolvimento
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,'abon_app', 'static'),
+]

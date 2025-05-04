@@ -61,8 +61,18 @@
     </style>
 </head>
 <body>
+    <!-- CABEÇALHO -->
+    {% load static %}
+    <div style="display: flex; align-items:     color: white; padding: 10px;">
+        <img src={% static 'img/brasao.jpg' %} alt="Brasão de Guarujá" style="height: 80px; margin-right: 20px;">
+        <div style="font-family: 'Bookman Old Style', serif;text-align: center;">
+            <div style="font-size: 22px;">Câmara Municipal de Guarujá</div>
+            <div style="font-size: 12px;">ESTADO DE SÃO PAULO</div>
+            <div style="font-size: 14px;">Departamento de Recursos Humanos</div>
+        </div>
+    </div>
 
-    <h1>{{ setor_gestao_pessoas }}</h1>
+    {% comment %} <h1>{{ setor_gestao_pessoas }}</h1> {% endcomment %}
 
     {% if data_inicio != data_fim %}
         <h2>Faltas Abonadas Agendadas entre {{ data_inicio|date:"d/m/Y" }} e {{ data_fim|date:"d/m/Y" }}</h2>
