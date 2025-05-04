@@ -28,7 +28,12 @@
                     </td>
                     <td>{{ abon.data_abonada }}</td>
                     <td>
-                        <a href="{% url 'detalhes_abonada' abon.id %}" class="btn btn-info btn-sm">
+                        <a href="{% url 'detalhes_abonada' abon.id %}" class="btn btn-sm
+                        {% if abon.situacao == 'C' %}btn-light
+                        {% elif abon.situacao == 'D' %}btn-success
+                        {% elif abon.situacao == 'I' %}btn-danger
+                        {% elif abon.situacao == 'T' %}btn-warning
+                        {% else %}btn-secondary{% endif %}">
                             {{ abon.get_situacao_display }}
                         </a>
                     </td>
