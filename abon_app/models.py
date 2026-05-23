@@ -225,6 +225,14 @@ class ReqAbonada(models.Model):
         if self.data_abonada < dt.now().date() + timedelta(days=Configuracao.objects.get(id=1).min_dias_antes_abonada):
             return "A antecedência mínima para solicitação de abonada é de " + str(Configuracao.objects.get(id=1).min_dias_antes_abonada) + " dias!"
         
+        abonada_mesmo_dia = ReqAbonada.objects.filter(
+            data_abonada=self.data_abonada,
+            situacao__in=['T', 'D']
+        ).exclude(requerente=funcionario).exists()
+        
+        if abonada_mesmo_dia:
+            return "Já existe uma abonada aprovada ou em tramitação para este dia!"
+        
         abonadas_mes = ReqAbonada.objects.filter(requerente=funcionario, 
                                                 data_abonada__month=self.data_abonada.month,
                                                 data_abonada__year=self.data_abonada.year,
