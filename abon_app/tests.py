@@ -183,8 +183,8 @@ class ReqAbonadaModelTest(TestCase):
         
         # Deve retornar erro indicando que já existe abonada para esse dia
         self.assertIsNotNone(erro)
-        self.assertIn('abonada', erro.lower())
-        self.assertIn('mesmo dia', erro.lower())
+        self.assertIn('já existe', erro.lower())
+        self.assertIn('para este dia', erro.lower())
 
 
 class ViewIntegrationTest(TestCase):
